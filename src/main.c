@@ -5,6 +5,8 @@
  *      - Bruno Costa Barreto (202310309411)
  *      - Otávio Pessanha Costa (202310310611)
  *      - João Pedro Meirelles Silva (202410302211)
+ *      - Ronald Vitor Soares Castro (202410300111)
+ *      - Marcelo Jose Batista da Silva Filho (201813108511)
 *******************************************************************************/
 
 #include <stdio.h>
@@ -322,18 +324,53 @@ char* first_names[255] = {
 
 void init(void);
 lista_t* criar_lista(void);
-void exibir_lista(lista_t* lista, unsigned char flags);
 void menu_principal(void);
 void print_input_box(unsigned long comprimento);
 int snprintf(char *buffer, size_t buf_size, const char *format, ...);
 int main(void);
-
 char** generate_name(void);
 char* generate_email(char** name);
 char* generate_phone(void);
 data_t generate_date(void);
 telefonica_t generate_entry(void);
+void exibir_item_lista(int index, telefonica_t* entry, unsigned char flags);
+elemento_lista_t* criar_elemento(const telefonica_t* item);
+int lista_adicionar_inicio(lista_t* lista, telefonica_t* item);
+int lista_adicionar_final(lista_t* lista, telefonica_t* item);
+int lista_adicionar_em(lista_t* lista, telefonica_t* item, unsigned long index);
+int lista_remover_inicio(lista_t* lista);
+int lista_remover_final(lista_t* lista);
+int lista_remover_em(lista_t* lista, unsigned long index);
+void exibir_todos_items_lista(lista_t* lista, unsigned char flags);
+int get_yes_no(char* prompt);
+int get_yes_no(char* prompt) {
+    char input[10];
+    char first_char;
 
+    while (1) {
+        printf("%s", prompt);
+        
+        if (fgets(input, sizeof(input), stdin) == NULL) {
+            printf("Error reading input. Try again.\n");
+            continue;
+        }
+
+        first_char = input[0];
+        if (first_char >= 'A' && first_char <= 'Z') {
+            first_char += 'a' - 'A';
+        }
+
+        if (first_char == 'y' || first_char == 's') {
+            return 1;
+        }
+
+        if (first_char == 'n') {
+            return 0;
+        }
+
+        printf("Invalid input. Please enter a valid response.\n");
+    }
+}
 
 int snprintf(char *buffer, unsigned long buf_size, const char *format, ...) {
     int n;
@@ -363,7 +400,7 @@ elemento_lista_t* criar_elemento(const telefonica_t* item) {
     return novo;
 }
 
-int lista_adicionar_inicio(lista_t* lista, const telefonica_t* item) {
+int lista_adicionar_inicio(lista_t* lista, telefonica_t* item) {
     elemento_lista_t* novo = criar_elemento(item);
     if (novo == NULL) return 0;
 
@@ -380,7 +417,7 @@ int lista_adicionar_inicio(lista_t* lista, const telefonica_t* item) {
     return 1;
 }
 
-int lista_adicionar_final(lista_t* lista, const telefonica_t* item) {
+int lista_adicionar_final(lista_t* lista, telefonica_t* item) {
     elemento_lista_t* novo = criar_elemento(item);
     if (novo == NULL) return 0;
 
@@ -397,7 +434,7 @@ int lista_adicionar_final(lista_t* lista, const telefonica_t* item) {
     return 1;
 }
 
-int lista_adicionar_em(lista_t* lista, const telefonica_t* item, unsigned long index) {
+int lista_adicionar_em(lista_t* lista, telefonica_t* item, unsigned long index) {
     elemento_lista_t* novo;
     elemento_lista_t* atual;
     unsigned long i;
@@ -427,6 +464,64 @@ int lista_adicionar_em(lista_t* lista, const telefonica_t* item, unsigned long i
     return 1;
 }
 
+int lista_remover_inicio(lista_t* lista) {
+    elemento_lista_t* temp;
+    if (lista->inicio == NULL) return 0;
+
+    temp = lista->inicio;
+    lista->inicio = lista->inicio->proximo;
+
+    if (lista->inicio != NULL) {
+        lista->inicio->anterior = NULL;
+    } else {
+        lista->final = NULL;
+    }
+
+    free(temp);
+    lista->tamanho--;
+    return 1;
+}
+
+int lista_remover_final(lista_t* lista) {
+    elemento_lista_t* temp;
+    if (lista->final == NULL) return 0;
+
+    temp = lista->final;
+    lista->final = lista->final->anterior;
+
+    if (lista->final != NULL) {
+        lista->final->proximo = NULL;
+    } else {
+        lista->inicio = NULL;
+    }
+
+    free(temp);
+    lista->tamanho--;
+    return 1;
+}
+
+int lista_remover_em(lista_t* lista, unsigned long index) {
+    unsigned long i;
+    elemento_lista_t* atual;
+    if (index >= lista->tamanho) return 0;
+
+    if (index == 0) return lista_remover_inicio(lista);
+    if (index == lista->tamanho - 1) return lista_remover_final(lista);
+
+    atual = lista->inicio;
+    for (i = 0; i < index; i++) {
+        atual = atual->proximo;
+    }
+
+    atual->anterior->proximo = atual->proximo;
+    if (atual->proximo != NULL) {
+        atual->proximo->anterior = atual->anterior;
+    }
+
+    free(atual);
+    lista->tamanho--;
+    return 1;
+}
 
 char** generate_name(void) {
     char **fullname = (char**) malloc(4 * sizeof(char*));
@@ -501,6 +596,24 @@ data_t generate_date(void) {
     return date;
 }
 
+void exibir_todos_items_lista(lista_t* lista, unsigned char flags) {
+    elemento_lista_t* atual;
+    unsigned long indice;
+    
+    if (lista == NULL || lista->inicio == NULL) {
+        printf("A lista está vazia.\n");
+        return;
+    }
+
+    atual = lista->inicio;
+    indice = 0;
+
+    while (atual != NULL) {
+        exibir_item_lista(indice, &atual->item, flags);
+        atual = atual->proximo;
+        indice++;
+    }
+}
 
 void exibir_item_lista(int index, telefonica_t* entry, unsigned char flags) {
     unsigned long i;
@@ -593,19 +706,111 @@ void print_input_box(unsigned long comprimento) {
 #endif
 }
 
+telefonica_t* ler_entrada(void) {
+    telefonica_t* item;
+
+    item = malloc(sizeof(telefonica_t));
+
+    if (item == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(1);
+    }
+
+    item->nome = (char *)malloc(100);
+    item->telefone = (char *)malloc(15);
+    item->email = (char *)malloc(100);
+    if (!item->nome || !item->telefone || !item->email) {
+        fprintf(stderr, "Memory allocation for strings failed\n");
+        exit(1);
+    }
+
+    printf("Insira o nome: ");
+    scanf("%s", item->nome);
+
+    printf("Insira o email: ");
+    scanf("%s", item->email);
+    
+    printf("Insira o telefone: ");
+    scanf("%s", item->telefone);
+
+    printf("Insira o dia: ");
+    scanf("%hhu", &item->data.dia);
+
+    printf("Insira o mês: ");
+    scanf("%hhu", &item->data.mes);
+
+    printf("Insira o ano: ");
+    scanf("%lu", &item->data.ano);
+
+    return item;
+}
+
 void menu_principal(void) {
     unsigned char escolha_geral = 0;
     unsigned char escolha_adicionar = 0;
     unsigned char escolha_remover = 0;
     unsigned char escolha_config_exibicao = 0;
     unsigned char config_exibicao = 0;
+    unsigned long posicao = 0;
+    unsigned long rand_count = 0;
+    unsigned long rand_i = 0;
+    telefonica_t rand_entry;
+    telefonica_t* item;
+    int rand_list = 0;
+    lista_t* lista = NULL;
     do {
         LIMPAR_TELA_FUNC;
 
         switch (escolha_geral) {
+            case 1:
+                lista = criar_lista();
+                if (lista == ERROR_ALLOC_LIST_TYPE) {
+                    printf("ERROR %ud\n", ERROR_ALLOC_LIST_VALUE);
+                    free(lista);
+                    exit(ERROR_ALLOC_LIST_VALUE);
+                }
+                
+                printf("deseja criar uma lista com itens aleatorios? ");
+                scanf("%d", &rand_list);
+                if (rand_list == 1) {
+                    printf("Insira a quantidade de items para criar: ");
+                    scanf("%lu", &rand_count);
+                    for (rand_i = 0; rand_i < rand_count; rand_i++) {
+                        rand_entry = generate_entry();
+                        lista_adicionar_final(lista, &rand_entry);
+                    }
+                }
+                break;
             case 2:
                 do {
                     switch (escolha_adicionar) {
+                        case 1:
+                            item = ler_entrada();
+                            lista_adicionar_inicio(lista, item);
+                            if((config_exibicao & (1 << 2)) != 0) {
+                                exibir_item_lista(0, item, config_exibicao);
+                            }
+                            break;
+                        case 2:                          
+                            item = ler_entrada();
+                            lista_adicionar_final(lista, item);
+                            if((config_exibicao & (1 << 2)) != 0) {
+                                exibir_item_lista(0, item, config_exibicao);
+                            }
+                            break;
+                        case 3:
+                            printf("Em que posição deseja inserir: ");
+                            scanf("%lu", &posicao);
+
+                            item = ler_entrada();
+
+                            lista_adicionar_em(lista, item, posicao);
+                            posicao = 0;
+
+                            if((config_exibicao & (1 << 2)) != 0) {
+                                exibir_item_lista(0, item, config_exibicao);
+                            }
+                            break;
                         case 0:
                             break;
                         default:
@@ -636,6 +841,20 @@ void menu_principal(void) {
             case 3:
                 do {
                     switch (escolha_remover) {
+                        case 1:
+                            lista_remover_inicio(lista);
+                            exibir_todos_items_lista(lista, config_exibicao);
+                            break;
+                        case 2:
+                            lista_remover_final(lista);
+                            exibir_todos_items_lista(lista, config_exibicao);
+                            break;
+                        case 3:
+                            printf("Em que posição deseja remover: ");
+                            scanf("%lu", &posicao);
+                            lista_remover_em(lista, posicao);
+                            exibir_todos_items_lista(lista, config_exibicao);
+                            break;
                         case 0:
                             break;
                         default:
@@ -662,6 +881,9 @@ void menu_principal(void) {
                     scanf("%hhu", &escolha_remover);
                     printf("\n");
                 }while (escolha_remover != 0);
+                break;
+            case 4:
+                exibir_todos_items_lista(lista, config_exibicao);
                 break;
             case 5:
                 do {
@@ -702,38 +924,6 @@ void menu_principal(void) {
                     printf("\n");
                 }while (escolha_remover != 0);
                 break;
-            case 6:
-                do {
-                    switch (escolha_config_exibicao) {
-                        case 0:
-                            break;
-                        default:
-                            printf("█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n");
-                            printf("█                                OPÇÃO INVÁLIDA                                █\n");
-                            printf("█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n");
-                            break;
-                    }
-
-                    printf("█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n");
-                    printf("█                         PROGRAMA DE LISTA TELEFÔNICA                         █\n");
-                    printf("█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n");
-                    printf("█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n");
-                    printf("█                                 TELA DE AJUDA                                █\n");
-                    printf("█──────────────────────────────────────────────────────────────────────────────█\n");
-                    printf("█                                                                              █\n");
-                    printf("█                                                                              █\n");
-                    printf("█                                                                              █\n");
-                    printf("█                                                                              █\n");
-                    printf("█                                                                              █\n");
-                    printf("█                                                                              █\n");
-                    printf("█                                                                              █\n");
-                    printf("█                                                                              █\n");
-                    printf("█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n");
-                    print_input_box(80);
-                    scanf("%hhu", &escolha_remover);
-                    printf("\n");
-                }while (escolha_remover != 0);
-                break;
             case 0:
                 break;
             default:
@@ -766,7 +956,6 @@ void menu_principal(void) {
         printf("█ [3] - REMOVER                                                                █\n");
         printf("█ [4] - EXIBIR LISTA                                                           █\n");
         printf("█ [5] - CONFIGURAR EXIBIÇÃO                                                    █\n");
-        printf("█ [9] - AJUDA                                                                  █\n");
         printf("█ [0] - SAIR                                                                   █\n");
         printf("█                                                                              █\n");
         printf("█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n");
@@ -775,20 +964,11 @@ void menu_principal(void) {
         scanf("%hhu", &escolha_geral);
         printf("\n");
     } while (escolha_geral != 0);
+    free(lista);
 }
 
 int main(void) {
-    lista_t* lista;
     init();
-
-    lista = criar_lista();
-    if (lista == ERROR_ALLOC_LIST_TYPE) {
-        printf("ERROR %ud\n", ERROR_ALLOC_LIST_VALUE);
-        free(lista);
-        exit(ERROR_ALLOC_LIST_VALUE);
-    }
-
     menu_principal();
-    free(lista);
     return EXIT_SUCCESS;
 }
