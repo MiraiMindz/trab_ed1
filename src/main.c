@@ -3,10 +3,10 @@
  *  Periodo: 2024.2
  *  Alunos:
  *      - Bruno Costa Barreto (202310309411)
- *      - Otávio Pessanha Costa (202310310611)
  *      - João Pedro Meirelles Silva (202410302211)
- *      - Ronald Vitor Soares Castro (202410300111)
  *      - Marcelo Jose Batista da Silva Filho (201813108511)
+ *      - Otávio Pessanha Costa (202310310611)
+ *      - Ronald Vitor Soares Castro (202410300111)
 *******************************************************************************/
 
 #include <stdio.h>
@@ -752,11 +752,11 @@ void menu_principal(void) {
     unsigned char escolha_config_exibicao = 0;
     unsigned char config_exibicao = 0;
     unsigned long posicao = 0;
-    unsigned long rand_count = 0;
+    /*unsigned long rand_count = 0;
     unsigned long rand_i = 0;
     telefonica_t rand_entry;
+    int rand_list = 0;*/
     telefonica_t* item;
-    int rand_list = 0;
     lista_t* lista = NULL;
     do {
         LIMPAR_TELA_FUNC;
@@ -770,6 +770,7 @@ void menu_principal(void) {
                     exit(ERROR_ALLOC_LIST_VALUE);
                 }
                 
+                /*
                 printf("deseja criar uma lista com itens aleatorios? ");
                 scanf("%d", &rand_list);
                 if (rand_list == 1) {
@@ -780,6 +781,7 @@ void menu_principal(void) {
                         lista_adicionar_final(lista, &rand_entry);
                     }
                 }
+                */
                 break;
             case 2:
                 do {
@@ -885,45 +887,45 @@ void menu_principal(void) {
             case 4:
                 exibir_todos_items_lista(lista, config_exibicao);
                 break;
-            case 5:
-                do {
-                    switch (escolha_config_exibicao) {
-                        case 1:
-                            config_exibicao ^= (1 << 0);
-                            break;
-                        case 2:
-                            config_exibicao ^= (1 << 1);
-                            break;
-                        case 3:
-                            config_exibicao ^= (1 << 2);
-                            break;
-                        case 0:
-                            break;
-                        default:
-                            printf("█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n");
-                            printf("█                                OPÇÃO INVÁLIDA                                █\n");
-                            printf("█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n");
-                            break;
-                    }
+            // case 5:
+            //     do {
+            //         switch (escolha_config_exibicao) {
+            //             case 1:
+            //                 config_exibicao ^= (1 << 0);
+            //                 break;
+            //             case 2:
+            //                 config_exibicao ^= (1 << 1);
+            //                 break;
+            //             case 3:
+            //                 config_exibicao ^= (1 << 2);
+            //                 break;
+            //             case 0:
+            //                 break;
+            //             default:
+            //                 printf("█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n");
+            //                 printf("█                                OPÇÃO INVÁLIDA                                █\n");
+            //                 printf("█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n");
+            //                 break;
+            //         }
 
-                    printf("█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n");
-                    printf("█                         PROGRAMA DE LISTA TELEFÔNICA                         █\n");
-                    printf("█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n");
-                    printf("█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n");
-                    printf("█                         SUB-MENU CONFIGURAR EXIBIÇÃO                         █\n");
-                    printf("█──────────────────────────────────────────────────────────────────────────────█\n");
-                    printf("█                                                                              █\n");
-                    printf("█ [1] - EXIBIR ENDEREÇOS                                                       █\n");
-                    printf("█ [2] - EXIBIR POSIÇÃO                                                         █\n");
-                    printf("█ [3] - EXIBIR EM AÇÕES                                                        █\n");
-                    printf("█ [0] - VOLTAR                                                                 █\n");
-                    printf("█                                                                              █\n");
-                    printf("█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n");
-                    print_input_box(80);
-                    scanf("%hhu", &escolha_remover);
-                    printf("\n");
-                }while (escolha_remover != 0);
-                break;
+            //         printf("█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n");
+            //         printf("█                         PROGRAMA DE LISTA TELEFÔNICA                         █\n");
+            //         printf("█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n");
+            //         printf("█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n");
+            //         printf("█                         SUB-MENU CONFIGURAR EXIBIÇÃO                         █\n");
+            //         printf("█──────────────────────────────────────────────────────────────────────────────█\n");
+            //         printf("█                                                                              █\n");
+            //         printf("█ [1] - EXIBIR ENDEREÇOS                                                       █\n");
+            //         printf("█ [2] - EXIBIR POSIÇÃO                                                         █\n");
+            //         printf("█ [3] - EXIBIR EM AÇÕES                                                        █\n");
+            //         printf("█ [0] - VOLTAR                                                                 █\n");
+            //         printf("█                                                                              █\n");
+            //         printf("█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n");
+            //         print_input_box(80);
+            //         scanf("%hhu", &escolha_remover);
+            //         printf("\n");
+            //     }while (escolha_remover != 0);
+            //     break;
             case 0:
                 break;
             default:
@@ -939,7 +941,9 @@ void menu_principal(void) {
         printf("█ Escrito por                                                                  █\n");
         printf("█ ├─ Bruno Costa Barreto (202310309411)                                        █\n");
         printf("█ ├─ João Pedro Meirelles Silva (202410302211)                                 █\n");
-        printf("█ └─ Otávio Pessanha Costa (202310310611)                                      █\n");
+        printf("█ ├─ Marcelo Jose Batista da Silva Filho (201813108511)                        █\n");
+        printf("█ ├─ Otávio Pessanha Costa (202310310611)                                      █\n");
+        printf("█ └─ Ronald Vitor Soares Castro (202410300111)                                 █\n");
         printf("█                                                                              █\n");
         printf("█ Banca                                                                        █\n");
         printf("█ ├─ Disciplina de Estrutura de Dados I                                        █\n");
@@ -955,7 +959,7 @@ void menu_principal(void) {
         printf("█ [2] - ADICIONAR                                                              █\n");
         printf("█ [3] - REMOVER                                                                █\n");
         printf("█ [4] - EXIBIR LISTA                                                           █\n");
-        printf("█ [5] - CONFIGURAR EXIBIÇÃO                                                    █\n");
+        // printf("█ [5] - CONFIGURAR EXIBIÇÃO                                                    █\n");
         printf("█ [0] - SAIR                                                                   █\n");
         printf("█                                                                              █\n");
         printf("█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n");
