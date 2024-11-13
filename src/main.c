@@ -333,7 +333,7 @@ char* generate_email(char** name);
 char* generate_phone(void);
 data_t generate_date(void);
 telefonica_t generate_entry(void);
-void exibir_item_lista(int index, telefonica_t* entry, unsigned char flags);
+void exibir_item_lista(telefonica_t* entry);
 elemento_lista_t* criar_elemento(const telefonica_t* item);
 int lista_adicionar_inicio(lista_t* lista, telefonica_t* item);
 int lista_adicionar_final(lista_t* lista, telefonica_t* item);
@@ -341,7 +341,7 @@ int lista_adicionar_em(lista_t* lista, telefonica_t* item, unsigned long index);
 int lista_remover_inicio(lista_t* lista);
 int lista_remover_final(lista_t* lista);
 int lista_remover_em(lista_t* lista, unsigned long index);
-void exibir_todos_items_lista(lista_t* lista, unsigned char flags);
+void exibir_todos_items_lista(lista_t* lista);
 int get_yes_no(char* prompt);
 int get_yes_no(char* prompt) {
     char input[10];
@@ -596,9 +596,8 @@ data_t generate_date(void) {
     return date;
 }
 
-void exibir_todos_items_lista(lista_t* lista, unsigned char flags) {
+void exibir_todos_items_lista(lista_t* lista) {
     elemento_lista_t* atual;
-    unsigned long indice;
     
     if (lista == NULL || lista->inicio == NULL) {
         printf("A lista está vazia.\n");
@@ -606,16 +605,13 @@ void exibir_todos_items_lista(lista_t* lista, unsigned char flags) {
     }
 
     atual = lista->inicio;
-    indice = 0;
-
     while (atual != NULL) {
-        exibir_item_lista(indice, &atual->item, flags);
+        exibir_item_lista(&atual->item);
         atual = atual->proximo;
-        indice++;
     }
 }
 
-void exibir_item_lista(int index, telefonica_t* entry, unsigned char flags) {
+void exibir_item_lista(telefonica_t* entry) {
     unsigned long i;
     unsigned long nome_len   = strlen(entry->nome);
     char* nome_upper = (char*)malloc(nome_len + 1);
@@ -631,6 +627,7 @@ void exibir_item_lista(int index, telefonica_t* entry, unsigned char flags) {
     nome_upper[nome_len] = '\0';
 
 
+    /*
     if ((flags & (1 << 0)) != 0) {
         printf("█▀▀▀▀▀▀▀▀▀▀▀▀█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n");
         printf("█  INDICE    █ %-60d█\n", index);
@@ -642,6 +639,7 @@ void exibir_item_lista(int index, telefonica_t* entry, unsigned char flags) {
         printf("█  ENDEREÇO  █ %-60p█\n", (void*)entry);
         printf("█            █%61s█\n", " ");
     }
+    */
 
     printf("█▀▀▀▀▀▀▀▀▀▀▀▀█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n");
     printf("█  NOME      █ %-60s█\n", nome_upper);
@@ -749,11 +747,11 @@ void menu_principal(void) {
     unsigned char escolha_geral = 0;
     unsigned char escolha_adicionar = 0;
     unsigned char escolha_remover = 0;
-    unsigned char escolha_config_exibicao = 0;
-    unsigned char config_exibicao = 0;
     unsigned long posicao = 0;
     /*unsigned long rand_count = 0;
+    unsigned char escolha_config_exibicao = 0;
     unsigned long rand_i = 0;
+    unsigned char config_exibicao = 0;
     telefonica_t rand_entry;
     int rand_list = 0;*/
     telefonica_t* item;
@@ -789,16 +787,14 @@ void menu_principal(void) {
                         case 1:
                             item = ler_entrada();
                             lista_adicionar_inicio(lista, item);
-                            if((config_exibicao & (1 << 2)) != 0) {
-                                exibir_item_lista(0, item, config_exibicao);
-                            }
+                            LIMPAR_TELA_FUNC;
+                            exibir_item_lista(item);
                             break;
                         case 2:                          
                             item = ler_entrada();
                             lista_adicionar_final(lista, item);
-                            if((config_exibicao & (1 << 2)) != 0) {
-                                exibir_item_lista(0, item, config_exibicao);
-                            }
+                            LIMPAR_TELA_FUNC;
+                            exibir_item_lista(item);
                             break;
                         case 3:
                             printf("Em que posição deseja inserir: ");
@@ -809,9 +805,8 @@ void menu_principal(void) {
                             lista_adicionar_em(lista, item, posicao);
                             posicao = 0;
 
-                            if((config_exibicao & (1 << 2)) != 0) {
-                                exibir_item_lista(0, item, config_exibicao);
-                            }
+                            LIMPAR_TELA_FUNC;
+                            exibir_item_lista(item);
                             break;
                         case 0:
                             break;
@@ -845,17 +840,20 @@ void menu_principal(void) {
                     switch (escolha_remover) {
                         case 1:
                             lista_remover_inicio(lista);
-                            exibir_todos_items_lista(lista, config_exibicao);
+                                LIMPAR_TELA_FUNC;
+                                exibir_todos_items_lista(lista);
                             break;
                         case 2:
                             lista_remover_final(lista);
-                            exibir_todos_items_lista(lista, config_exibicao);
+                                LIMPAR_TELA_FUNC;
+                                exibir_todos_items_lista(lista);
                             break;
                         case 3:
                             printf("Em que posição deseja remover: ");
                             scanf("%lu", &posicao);
                             lista_remover_em(lista, posicao);
-                            exibir_todos_items_lista(lista, config_exibicao);
+                                LIMPAR_TELA_FUNC;
+                                exibir_todos_items_lista(lista);
                             break;
                         case 0:
                             break;
@@ -885,47 +883,49 @@ void menu_principal(void) {
                 }while (escolha_remover != 0);
                 break;
             case 4:
-                exibir_todos_items_lista(lista, config_exibicao);
+                exibir_todos_items_lista(lista);
                 break;
-            // case 5:
-            //     do {
-            //         switch (escolha_config_exibicao) {
-            //             case 1:
-            //                 config_exibicao ^= (1 << 0);
-            //                 break;
-            //             case 2:
-            //                 config_exibicao ^= (1 << 1);
-            //                 break;
-            //             case 3:
-            //                 config_exibicao ^= (1 << 2);
-            //                 break;
-            //             case 0:
-            //                 break;
-            //             default:
-            //                 printf("█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n");
-            //                 printf("█                                OPÇÃO INVÁLIDA                                █\n");
-            //                 printf("█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n");
-            //                 break;
-            //         }
+            /*
+            case 5:
+                do {
+                    switch (escolha_exibicao) {
+                        case 1:
+                            config_exibicao ^= (1 << 0);
+                            break;
+                        case 2:
+                            config_exibicao ^= (1 << 1);
+                            break;
+                        case 3:
+                            config_exibicao ^= (1 << 2);
+                            break;
+                        case 0:
+                            break;
+                        default:
+                            printf("█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n");
+                            printf("█                                OPÇÃO INVÁLIDA                                █\n");
+                            printf("█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n");
+                            break;
+                    }
 
-            //         printf("█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n");
-            //         printf("█                         PROGRAMA DE LISTA TELEFÔNICA                         █\n");
-            //         printf("█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n");
-            //         printf("█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n");
-            //         printf("█                         SUB-MENU CONFIGURAR EXIBIÇÃO                         █\n");
-            //         printf("█──────────────────────────────────────────────────────────────────────────────█\n");
-            //         printf("█                                                                              █\n");
-            //         printf("█ [1] - EXIBIR ENDEREÇOS                                                       █\n");
-            //         printf("█ [2] - EXIBIR POSIÇÃO                                                         █\n");
-            //         printf("█ [3] - EXIBIR EM AÇÕES                                                        █\n");
-            //         printf("█ [0] - VOLTAR                                                                 █\n");
-            //         printf("█                                                                              █\n");
-            //         printf("█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n");
-            //         print_input_box(80);
-            //         scanf("%hhu", &escolha_remover);
-            //         printf("\n");
-            //     }while (escolha_remover != 0);
-            //     break;
+                    printf("█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n");
+                    printf("█                         PROGRAMA DE LISTA TELEFÔNICA                         █\n");
+                    printf("█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n");
+                    printf("█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n");
+                    printf("█                         SUB-MENU CONFIGURAR EXIBIÇÃO                         █\n");
+                    printf("█──────────────────────────────────────────────────────────────────────────────█\n");
+                    printf("█                                                                              █\n");
+                    printf("█ [1] - EXIBIR ENDEREÇOS                                                       █\n");
+                    printf("█ [2] - EXIBIR POSIÇÃO                                                         █\n");
+                    printf("█ [3] - EXIBIR EM AÇÕES                                                        █\n");
+                    printf("█ [0] - VOLTAR                                                                 █\n");
+                    printf("█                                                                              █\n");
+                    printf("█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n");
+                    print_input_box(80);
+                    scanf("%hhu", &escolha_remover);
+                    printf("\n");
+                }while (escolha_remover != 0);
+                break;
+            */
             case 0:
                 break;
             default:
@@ -959,7 +959,7 @@ void menu_principal(void) {
         printf("█ [2] - ADICIONAR                                                              █\n");
         printf("█ [3] - REMOVER                                                                █\n");
         printf("█ [4] - EXIBIR LISTA                                                           █\n");
-        // printf("█ [5] - CONFIGURAR EXIBIÇÃO                                                    █\n");
+        /*printf("█ [5] - CONFIGURAR EXIBIÇÃO                                                    █\n");*/
         printf("█ [0] - SAIR                                                                   █\n");
         printf("█                                                                              █\n");
         printf("█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n");
